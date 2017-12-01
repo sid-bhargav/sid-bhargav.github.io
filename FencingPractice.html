@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fencing Practice - by SpicySid</title>
+	</head>
+	<script>
+		var myTimer;
+		var isRunning = false;
+		
+		//if you have another AudioContext class use that one, as some browsers have a limit
+		var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+
+		//All arguments are optional:
+
+		//duration of the tone in milliseconds. Default is 500
+		//frequency of the tone in hertz. default is 440
+		//volume of the tone. Default is 1, off is 0.
+		//type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+		//callback to use on end of tone
+		function beep(duration, frequency, volume, type, callback) {
+			var oscillator = audioCtx.createOscillator();
+			var gainNode = audioCtx.createGain();
+
+			oscillator.connect(gainNode);
+			gainNode.connect(audioCtx.destination);
+
+			if (volume){gainNode.gain.value = volume;};
+			if (frequency){oscillator.frequency.value = frequency;}
+			if (type){oscillator.type = type;}
+			if (callback){oscillator.onended = callback;}
+
+			oscillator.start();
+			setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
+		};
+		
+		function StartStop() {
+			if (!isRunning) {
+				document.getElementById('cOn').innerText = 'Stop';
+				isRunning = true;
+				myTimer = setTimeout(Timer_Tick, 2000);
+			} else {
+				document.getElementById('cOn').innerText = 'Allez';
+				clearInterval(myTimer);
+				isRunning = false;
+			};
+		};
+		
+		function Timer_Tick() {
+			// If lunge practice is enabled
+			if (document.getElementById('chkLunge').checked) {
+				// Decide on lunge beep
+				if (Math.random() < 0.3) {
+					beep(500,300);
+				} else {
+					beep(200,500);
+				};
+			} else {
+				beep(200,500);
+			};
+			
+			// Set random delay
+			var NewDelay = Math.random()*2000 + 1000;
+			//document.getElementById('test').innerText = NewDelay;
+			myTimer = setTimeout(Timer_Tick, NewDelay);
+		};
+	</script>
+	<style>
+		body {background: WhiteSmoke; font-family: Verdana; color: DimGray;}
+		#content {width:50%; margin:0 auto; padding-top: 200px;}
+		button {width:100%; height: 200px; border-radius: 6px; margin-bottom: 30px; font-size: 45px; color: DimGray;}
+	</style>
+	<body>
+		<!-- <div id='test'>none</div> <br> -->
+		<div id='content'>
+			<button id='cOn' onclick="StartStop()">Allez</button> <br>
+			<input id='chkLunge' type='checkbox' checked> Lunge<br>
+		</div>
+	</body>
+</html>
